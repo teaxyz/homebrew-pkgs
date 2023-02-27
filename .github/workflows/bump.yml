@@ -62,4 +62,4 @@ jobs:
 
       - run: brew test-bot --only-formulae *.rb
 
-      - run: brew test-bot --dry-run --publish *.rb
+      - run: brew test-bot --publish *.rb
