@@ -42,6 +42,8 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
+      - run: brew update
+
       - name: Cache Homebrew Bundler RubyGems
         id: cache
         uses: actions/cache@v1
