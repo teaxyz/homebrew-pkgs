@@ -23,6 +23,7 @@ jobs:
 
     - name: Bump
       run: ./.github/actions/bump.ts
+      working-directory: Formulae
       env:
         TAP: teaxyz/pkgs
 
@@ -38,6 +39,9 @@ jobs:
         os: [ubuntu-latest, macos-11]
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
       - name: Set up Homebrew
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@master
@@ -65,7 +69,8 @@ jobs:
           cd bottles
           brew test-bot --only-formulae --tap=teaxyz/pkgs \
             --root-url="https://ghcr.io/teaxyz/homebrew-pkgs" \
-            --skip-recursive-dependents
+            --skip-recursive-dependents \
+            ../Formulae/*.rb
 
       - uses: actions/upload-artifact@v3
         with:
