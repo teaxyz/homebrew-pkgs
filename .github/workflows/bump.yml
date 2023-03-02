@@ -60,9 +60,14 @@ jobs:
 
       - run: brew test-bot --only-tap-syntax
 
-      - run: brew test-bot --only-formulae tea-cli.rb
+      - run: |
+          brew test-bot --only-formulae --tap=teaxyz/pkgs \
+            --root-url="https://ghcr.io/teaxyz/homebrew-pkgs" \
+            --skip-recursive-dependents
+        working-directory: bottles
 
-      # publish weirdly claims it cannot find deno
-      - run: brew install deno
-
-      - run: brew test-bot --publish tea-cli.rb
+      - run: actions/upload-artifacts@v2
+        with:
+          name: bottles
+          path: bottles
+          if-no-files-found: error
