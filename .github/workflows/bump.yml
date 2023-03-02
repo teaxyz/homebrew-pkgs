@@ -22,8 +22,7 @@ jobs:
       uses: teaxyz/setup@v0
 
     - name: Bump
-      run: ../.github/actions/bump.ts
-      working-directory: Formulae
+      run: ./.github/actions/bump.ts
       env:
         TAP: teaxyz/pkgs
 
@@ -70,7 +69,7 @@ jobs:
           brew test-bot --only-formulae --tap=teaxyz/pkgs \
             --root-url="https://ghcr.io/teaxyz/homebrew-pkgs" \
             --skip-recursive-dependents \
-            ../Formulae/*.rb
+            ../*.rb
 
       - uses: actions/upload-artifact@v3
         with:
