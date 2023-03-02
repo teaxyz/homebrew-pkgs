@@ -61,10 +61,11 @@ jobs:
       - run: brew test-bot --only-tap-syntax
 
       - run: |
+          mkdir bottles
+          cd bottles
           brew test-bot --only-formulae --tap=teaxyz/pkgs \
             --root-url="https://ghcr.io/teaxyz/homebrew-pkgs" \
             --skip-recursive-dependents
-        working-directory: bottles
 
       - uses: actions/upload-artifact@v3
         with:
