@@ -23,14 +23,14 @@ class TeaCli < Formula
   def caveats
     <<~EOS
       You must sync pantries before most commands will work:
-      
+
           tea --sync -n
-    
+
       tea’s shell magic is its secret sauce †
       If you want it add the following to your shell’s config file:
 
           source <(tea --magic)
-      
+
       > † https://github.com/teaxyz/cli#magic
     EOS
   end
@@ -42,9 +42,7 @@ class TeaCli < Formula
     EOS
 
     with_env("TEA_PREFIX" => testpath/".tea") do
-      system bin/"tea --sync"
-
-      assert_equal "hello, world", shell_output("#{bin}/tea '#{testpath}/hello.js'").chomp
+      assert_equal "hello, world", shell_output("#{bin}/tea -S '#{testpath}/hello.js'").chomp
     end
   end
 end

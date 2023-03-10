@@ -5,25 +5,74 @@ on:
   push:
     branches:
       - main
+      - bottles
   workflow_dispatch:
 
 jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: Homebrew/actions/setup-homebrew@master
-    - uses: teaxyz/setup@v0
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-    - run: .github/actions/bump.ts
+    - name: Set up Homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
+    - name: Set up tea
+      uses: teaxyz/setup@v0
+
+    - name: Bump
+      run: ./.github/actions/bump.ts
       env:
         TAP: teaxyz/pkgs
 
-    - name: test `brew install`
-      run: brew install ./tea-cli.rb
-
-    - name: git push
+    - name: Push changes
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.ref }}
+  bottle:
+    needs: [bump]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-11]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Cache Homebrew Bundler RubyGems
+        id: cache
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+          key: ${{ runner.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+          restore-keys: ${{ runner.os }}-rubygems-
+
+      - name: Install Homebrew Bundler RubyGems
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: brew install-bundler-gems
+
+      - run: brew test-bot --only-cleanup-before
+
+      - run: brew test-bot --only-setup
+
+      - run: brew test-bot --only-tap-syntax
+
+      - run: |
+          mkdir bottles
+          cd bottles
+          brew test-bot --only-formulae --tap=teaxyz/pkgs \
+            --root-url="https://ghcr.io/teaxyz/homebrew-pkgs" \
+            --skip-recursive-dependents \
+            ../*.rb
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: bottles
+          path: bottles
+          if-no-files-found: error
